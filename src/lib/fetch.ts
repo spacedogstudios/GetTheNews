@@ -14,6 +14,7 @@ type QueryProps = {
 };
 
 const PAGE_SIZE = 20;
+const MAX_RESULTS = 100;
 
 export const fetchArticles = async ({pageParam}: QueryProps) => {
   const res = await fetch(
@@ -27,8 +28,11 @@ export const fetchArticles = async ({pageParam}: QueryProps) => {
   }
 
   payload.nextCursor = null;
-  if (pageParam * PAGE_SIZE < payload.totalResults) {
-    payload.nextCursor = pageParam++;
+
+  const maxResults =
+    payload.totalResults < MAX_RESULTS ? payload.totalResults : MAX_RESULTS;
+  if (pageParam * PAGE_SIZE < maxResults) {
+    payload.nextCursor = ++pageParam;
   }
 
   return payload;

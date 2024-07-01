@@ -2,6 +2,7 @@ import {useInfiniteQuery} from '@tanstack/react-query';
 import {
   ActivityIndicator,
   FlatList,
+  ListRenderItemInfo,
   Text,
   TouchableHighlight,
   View,
@@ -11,10 +12,6 @@ import {selectedArticleAtom} from '@/atoms';
 import {useAtom} from 'jotai';
 import {navigate} from '@/lib/navigation';
 import {fetchArticles} from '@/lib/fetch';
-
-type RenderProps = {
-  article: Article;
-};
 
 export default function Articles() {
   const [, setSelectedArticle] = useAtom(selectedArticleAtom);
@@ -34,15 +31,21 @@ export default function Articles() {
     getNextPageParam: lastPage => lastPage.nextCursor,
   });
 
-  const renderItem = ({article}: RenderProps) => {
+  const renderItem = ({item}: ListRenderItemInfo<Article>) => {
+    if (item?.title.search(/\[Removed\]/) === 0) {
+      return null;
+    }
+
     const onPress = () => {
-      setSelectedArticle(article);
+      setSelectedArticle(item);
       navigate('Details');
     };
 
+    console.log('i: ' + item?.title);
+
     return (
       <TouchableHighlight onPress={onPress}>
-        <Text>{article?.title ?? ''}</Text>
+        <Text>{item?.title ?? ''}</Text>
       </TouchableHighlight>
     );
   };
@@ -58,14 +61,13 @@ export default function Articles() {
   }
 
   if (isFetching && !isFetchingNextPage) {
-    // Show loader when fetching first page data.
     return <ActivityIndicator size={'large'} />;
   }
 
   const flatData = data?.pages.flatMap(page => page.articles) ?? [];
 
   return (
-    <View style={{flex: 1, paddingBottom: 20}}>
+    <View className="flex-1 pb-8">
       <FlatList
         data={flatData}
         renderItem={renderItem}

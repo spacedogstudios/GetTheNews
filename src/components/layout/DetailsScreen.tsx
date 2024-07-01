@@ -1,4 +1,4 @@
-import {Text, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import {useAtom} from 'jotai';
 import {selectedArticleAtom} from '@/atoms';
 import {useEffect} from 'react';
@@ -16,10 +16,23 @@ export default function DetailsScreen({navigation}: Props) {
     });
   }, [navigation, selectedArticle]);
 
+  console.log(selectedArticle?.urlToImage);
+
   return (
-    <View className="flex-1 justify-center items-center">
-      <Text>{selectedArticle?.title}</Text>
+    <View className="flex-1 w-16 h-16">
+      <Text className="text-blue-200">{selectedArticle?.title}</Text>
       <Text>{selectedArticle?.content}</Text>
+      {selectedArticle?.urlToImage && (
+        <View className="flex-1 w-16 h-16">
+          <Image
+            source={{
+              uri: selectedArticle?.urlToImage,
+            }}
+            className="w-full h-full"
+            resizeMode="contain"
+          />
+        </View>
+      )}
     </View>
   );
 }
